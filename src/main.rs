@@ -30,12 +30,10 @@ async fn main() {
     }
     pretty_env_logger::init();
 
-    println!("{}", CONFIG.targets["foo"].key);
-
     // Routes.
     let target_route = warp::path!("target" / String).and_then(get_target);
     let routes = target_route.with(warp::log("diplo"));
 
     // Start server.
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(routes).run(([127, 0, 0, 1], CONFIG.port)).await;
 }

@@ -3,6 +3,7 @@ use std::{collections::HashMap, fs, io};
 
 #[derive(Deserialize)]
 pub struct Config {
+    pub port: u16,
     pub targets: HashMap<String, Target>,
 }
 
