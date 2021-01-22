@@ -18,7 +18,7 @@ type Resp = Result<Box<dyn warp::Reply>, warp::Rejection>;
 async fn get_target(name: String) -> Resp {
     match CONFIG.targets.get(&name) {
         Some(target) => Ok(Box::new(format!("dest: {}", target.dest))),
-        None => Ok(Box::new("not found"))
+        None => Err(warp::reject::not_found()),
     }
 }
 
