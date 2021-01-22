@@ -1,5 +1,6 @@
 extern crate pretty_env_logger;
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 
 mod config;
 
@@ -27,7 +28,5 @@ async fn main() {
         .map(|name| format!("Hello, {}!", name));
 
     let routes = hello.with(warp::log("diplo"));
-    warp::serve(routes)
-        .run(([127, 0, 0, 1], 3030))
-        .await;
+    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 }

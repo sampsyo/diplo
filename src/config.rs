@@ -1,5 +1,5 @@
-use std::{fs, io, collections::HashMap};
 use serde::Deserialize;
+use std::{collections::HashMap, fs, io};
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -20,4 +20,3 @@ impl Config {
         Ok(config)
     }
 }
-
