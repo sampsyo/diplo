@@ -3,7 +3,7 @@ extern crate pretty_env_logger;
 extern crate lazy_static;
 
 mod config;
-use config::Config;
+use config::{Config, Target};
 
 use std::env;
 use warp::Filter;
@@ -14,9 +14,16 @@ lazy_static! {
 
 type Resp = Result<Box<dyn warp::Reply>, warp::Rejection>;
 
-async fn get_target(name: String) -> Resp {
+async fn get_target(target: &'static Target, method: http::Method) -> Resp {
+    match method {
+        http::Method::GET => Ok(Box::new(format!("dest: {}", target.dest))),
+        _ => Err(warp::reject()),
+    }
+}
+
+async fn lookup_target(name: String) -> Result<&'static Target, warp::Rejection> {
     match CONFIG.targets.get(&name) {
-        Some(target) => Ok(Box::new(format!("dest: {}", target.dest))),
+        Some(target) => Ok(target),
         None => Err(warp::reject::not_found()),
     }
 }
@@ -30,7 +37,10 @@ async fn main() {
     pretty_env_logger::init();
 
     // Routes.
-    let target_route = warp::path!("target" / String).and_then(get_target);
+    let target_route = warp::path!("target" / String)
+        .and_then(lookup_target)
+        .and(warp::method())
+        .and_then(get_target);
     let routes = target_route.with(warp::log("diplo"));
 
     // Start server.

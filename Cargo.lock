@@ -157,6 +157,7 @@ dependencies = [
 name = "diplo"
 version = "0.1.0"
 dependencies = [
+ "http",
  "lazy_static",
  "log",
  "pretty_env_logger",
