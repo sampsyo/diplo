@@ -3,7 +3,6 @@ extern crate pretty_env_logger;
 extern crate lazy_static;
 
 mod config;
-
 use config::Config;
 
 use std::env;
@@ -35,5 +34,7 @@ async fn main() {
     let routes = target_route.with(warp::log("diplo"));
 
     // Start server.
-    warp::serve(routes).run(([127, 0, 0, 1], CONFIG.port)).await;
+    warp::serve(routes)
+        .run(CONFIG.host)
+        .await;
 }

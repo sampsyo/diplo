@@ -1,9 +1,10 @@
 use serde::Deserialize;
 use std::{collections::HashMap, fs, io};
+use std::net::SocketAddr;
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub port: u16,
+    pub host: SocketAddr,
     pub targets: HashMap<String, Target>,
 }
 
