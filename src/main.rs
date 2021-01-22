@@ -15,8 +15,11 @@ lazy_static! {
 
 type Resp = Result<Box<dyn warp::Reply>, warp::Rejection>;
 
-async fn say_hello(name: String) -> Resp {
-    Ok(Box::new(format!("Hello, {}!", name)))
+async fn get_target(name: String) -> Resp {
+    match CONFIG.targets.get(&name) {
+        Some(target) => Ok(Box::new(format!("dest: {}", target.dest))),
+        None => Ok(Box::new("not found"))
+    }
 }
 
 #[tokio::main]
@@ -29,9 +32,10 @@ async fn main() {
 
     println!("{}", CONFIG.targets["foo"].key);
 
-    // GET /hello/warp => 200 OK with body "Hello, warp!"
-    let hello = warp::path!("hello" / String).and_then(say_hello);
+    // Routes.
+    let target_route = warp::path!("target" / String).and_then(get_target);
+    let routes = target_route.with(warp::log("diplo"));
 
-    let routes = hello.with(warp::log("diplo"));
+    // Start server.
     warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 }
