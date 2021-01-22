@@ -1,29 +1,12 @@
 extern crate pretty_env_logger;
 #[macro_use] extern crate lazy_static;
 
-use std::{env, fs, io, collections::HashMap};
+mod config;
+
+use config::Config;
+
+use std::env;
 use warp::Filter;
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-struct Config {
-    targets: HashMap<String, Target>,
-}
-
-#[derive(Deserialize)]
-struct Target {
-    key: String,
-    dest: String,
-}
-
-impl Config {
-    // Load the configuration.
-    pub fn new() -> Result<Self, io::Error> {
-        let config_data = fs::read("diplo.toml")?;
-        let config: Config = toml::from_slice(&config_data)?;
-        Ok(config)
-    }
-}
 
 lazy_static! {
     static ref CONFIG: Config = Config::new().expect("could not load config");
