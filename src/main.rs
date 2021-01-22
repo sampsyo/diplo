@@ -34,7 +34,7 @@ async fn main() {
     let routes = target_route.with(warp::log("diplo"));
 
     // Start server.
-    warp::serve(routes)
-        .run(CONFIG.host)
-        .await;
+    let serve = warp::serve(routes).run(CONFIG.host);
+    log::info!("running at http://{}", CONFIG.host);
+    serve.await;
 }
