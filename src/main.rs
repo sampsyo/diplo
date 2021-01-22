@@ -1,6 +1,7 @@
 extern crate pretty_env_logger;
+#[macro_use] extern crate lazy_static;
 
-use std::{env, fs, collections::HashMap};
+use std::{env, fs, io, collections::HashMap};
 use warp::Filter;
 use serde::Deserialize;
 
@@ -15,6 +16,19 @@ struct Target {
     dest: String,
 }
 
+impl Config {
+    // Load the configuration.
+    pub fn new() -> Result<Self, io::Error> {
+        let config_data = fs::read("diplo.toml")?;
+        let config: Config = toml::from_slice(&config_data)?;
+        Ok(config)
+    }
+}
+
+lazy_static! {
+    static ref CONFIG: Config = Config::new().expect("could not load config");
+}
+
 #[tokio::main]
 async fn main() {
     // Log at the info level by default.
@@ -23,10 +37,7 @@ async fn main() {
     }
     pretty_env_logger::init();
 
-    // Load config.
-    let config_data = fs::read("diplo.toml").unwrap();
-    let config: Config = toml::from_slice(&config_data).unwrap();
-    println!("{}", config.targets["foo"].key);
+    println!("{}", CONFIG.targets["foo"].key);
 
     // GET /hello/warp => 200 OK with body "Hello, warp!"
     let hello = warp::path!("hello" / String)
