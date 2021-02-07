@@ -1,12 +1,11 @@
-extern crate pretty_env_logger;
 #[macro_use]
 extern crate lazy_static;
 
 mod config;
 use config::{Config, Target};
 
-use std::env;
 use warp::Filter;
+use simple_logger::SimpleLogger;
 
 lazy_static! {
     static ref CONFIG: Config = Config::new().expect("could not load config");
@@ -31,10 +30,7 @@ async fn lookup_target(name: String) -> Result<&'static Target, warp::Rejection>
 #[tokio::main]
 async fn main() {
     // Log at the info level by default.
-    if env::var_os("RUST_LOG").is_none() {
-        env::set_var("RUST_LOG", "diplo=info");
-    }
-    pretty_env_logger::init();
+    SimpleLogger::new().with_level(log::LevelFilter::Info).init().unwrap();
 
     // Routes.
     let target_route = warp::path!("target" / String)
