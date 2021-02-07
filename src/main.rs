@@ -13,11 +13,12 @@ lazy_static! {
 
 type Resp = Result<Box<dyn warp::Reply>, warp::Rejection>;
 
-async fn get_target(target: &'static Target, method: http::Method) -> Resp {
-    match method {
-        http::Method::GET => Ok(Box::new(format!("dest: {}", target.dest))),
-        _ => Err(warp::reject()),
-    }
+async fn get_target(target: &'static Target) -> Resp {
+  Ok(Box::new(format!("dest: {}", target.dest)))
+}
+
+async fn post_target(target: &'static Target) -> Resp {
+  Ok(Box::new(format!("post dest: {}", target.dest)))
 }
 
 async fn lookup_target(name: String) -> Result<&'static Target, warp::Rejection> {
@@ -33,11 +34,11 @@ async fn main() {
     SimpleLogger::new().with_level(log::LevelFilter::Info).init().unwrap();
 
     // Routes.
-    let target_route = warp::path!("target" / String)
-        .and_then(lookup_target)
-        .and(warp::method())
-        .and_then(get_target);
-    let routes = target_route.with(warp::log("diplo"));
+    let target_path = warp::path!("target" / String)
+        .and_then(lookup_target);
+    let routes = target_path.and(warp::get()).and_then(get_target)
+        .or(target_path.and(warp::post()).and_then(post_target))
+        .with(warp::log("diplo"));
 
     // Start server.
     let serve = warp::serve(routes).run(CONFIG.host);
